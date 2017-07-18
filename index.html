@@ -1,0 +1,573 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ADAM CSS</title>
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/theme/moon.css">
+  <!-- Theme used for syntax highlighting of code -->
+  <link rel="stylesheet" href="lib/css/zenburn.css">
+  <!-- Printing and PDF exports -->
+  <script>
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+  document.getElementsByTagName('head')[0].appendChild(link);
+  </script>
+</head>
+
+<body>
+  <div class="reveal custom">
+    <div class="slides">
+      <!-- Slide 1 Start -->
+      <section>
+        <h3>refactoring</h3>
+        <h1>ADAM CSS</h1>
+      </section>
+       <!-- Slide 1 End -->
+
+       <section>
+        <h3>Topics</h3>
+        <ul>
+          <li>
+           Common CSS problems
+          </li>
+          <li>
+            Few words about semantics
+          </li>
+           <li>
+             Scalable CSS
+          </li>
+        </ul>
+      </section>
+
+      <!-- Slide 2 Begin-->
+      <section>
+        <h2>Current CSS problems </h2>
+        <section>
+          <article class="fragment">
+            <h6>Browser prefixes</h6>
+            <pre><code data-trim >
+          -webkit-box-shadow: 0 0 4px rgba(0,0,0, .25);
+             -moz-box-shadow: 0 0 4px rgba(0,0,0, .25);
+                  box-shadow: 0 0 4px rgba(0,0,0, .25);
+                </code></pre>
+            <pre><code data-trim >
+                -webkit-transform: rotate(30deg); 
+                    -ms-transform: rotate(30deg); 
+                        transform: rotate(30deg);
+                </code></pre>
+          </article>
+          <article class="fragment fade-up">
+            <div>
+              <small class="c-approval">Solution:</small>
+              <small>Use autoprefix build task</small>
+            </div>
+          </article>
+          <article class="fragment fade-up">
+            <pre class="narrow"><code data-trim >
+                    div {
+                      box-shadow: 0 0 4px rgba(0,0,0, .25);
+                    }
+                  </code></pre> =>
+            <pre class="narrow"><code data-trim >
+                    div {
+                      -webkit-box-shadow: 0 0 4px rgba(0,0,0, .25);
+                         -moz-box-shadow: 0 0 4px rgba(0,0,0, .25);
+                              box-shadow: 0 0 4px rgba(0,0,0, .25);
+                    }
+                  </code></pre>
+          </article>
+          <article class="fragment fade-up">
+            <pre class="narrow"><code data-trim >
+                    a {
+                      display: flex;
+                    }
+                  </code></pre> =>
+            <pre class="narrow"><code data-trim >
+                    a {
+                      display: -webkit-box;
+                      display: -webkit-flex;
+                      display: -ms-flexbox;
+                      display: flex
+                    }
+                  </code></pre>
+          </article>
+        </section>
+        <section>
+          <article class="fragment ">
+            <h6>Fighting specificity</h6>
+            <pre><code class="html" data-trim contenteditable>
+                  font-size: 100% !important;
+                </code></pre>
+          </article>
+          <article class="fragment ">
+            <pre><code data-trim >
+                  header .nav-tabs li:nth-child(1).active a:before {...}
+                  header .nav-tabs li:nth-child(2).active a:before {...}
+                  header .nav-tabs li:nth-child(3).active a:before {...}
+                </code></pre>
+          </article>
+          <article class="fragment fade-up">
+            <small class="c-approval">Solution:</small>
+          </article>
+          <ul class="m--full-width">
+            <li class="fragment fade-up">
+              <p>Avoid IDs where possible</p>
+            </li>
+            <li class="fragment fade-up">
+              <p>Avoid element selectors</p>
+              <pre class="narrow"><code data-trim >
+                     // bad
+                    .foo div { … }
+                    .foo span { … }
+                    .foo ul { … }
+                  </code></pre>
+              <pre class="narrow"><code data-trim >
+                    // good
+                    .foo .section { … }
+                    .foo .title { … }
+                    .foo .linklist { … }
+                  </code></pre>
+            </li>
+            <li class="fragment fade-up">
+              <p>Avoid deep nesting <small>(try to nest your selectors maximum 3 levels deep)</small></p>
+            </li>
+            <li class="fragment fade-up">
+              <p> Avoid the descendant selector</p>
+              <pre class="narrow"><code data-trim >
+                    // bad
+                    html body .linklist li a { … }
+                  </code></pre>
+              <pre class="narrow"><code data-trim >
+                    // good
+                    .linklist__link { … }
+                  </code></pre>
+            </li>
+          </ul>
+        </section>
+        <section>
+          <article class="fragment">
+            <h6>Inline style</h6>
+            <pre class="narrow"><code class="html" data-trim>
+                  <h1 class="logo" 
+                    style="background:url('images/meetrics_logo.png') no-repeat">Meetrics GmbH</h1>
+                </code></pre>
+            <small class="c-approval">=></small>
+            <pre class="narrow"><code data-trim>
+                .logo {
+                  background:url(&quot;images/meetrics_logo.png&quot;) no-repeat"
+                }
+                </code></pre>
+          </article>
+          <article class="fragment">
+            <h6>Non-semantic class names</h6>
+            <pre class="narrow"><code class="html" data-trim>
+                    <div class="largeText"></div>
+                  </code></pre>
+            <small class="c-approval">=></small>
+            <pre class="narrow"><code class="html" data-trim>
+                    <div class="copyright-text"></div>
+                  </code></pre>
+          </article>
+
+          <article class="fragment">
+            <h6>No pre-procesors</h6>
+            <pre class="narrow"><code class="html" data-trim>
+              .container {...}
+              .container.withsearch {...}
+              .container.withsearch.detail {...}
+            </code></pre>
+            <small class="c-approval">=></small>
+            <pre class="narrow"><code class="html" data-trim>
+              .container {
+                ...
+
+                &.withsearch {
+                ...
+
+                  &.detail {...}
+                }
+              }
+                  </code></pre>
+          </article>
+        </section>
+      </section>
+      <!-- Slide 2 End -->
+
+      <!-- Slide 3 Start -->
+      <!-- BEM -->
+      <section>
+        <section>
+
+          <h2>Improve semantics</h2>
+          <aticle class="fragment">
+              
+            <h4>Good and bad class names</h4>
+            
+
+            <pre class="narrow"><code data-trim>
+              <!-- non semantic -->
+              <div class="red pull-left"></div>
+              <div class="grid row"></div>
+              <div class="col-xs-4"></div>
+            </code></pre>
+
+              <pre class="narrow"><code class="html" data-trim>
+              <!-- semantic -->
+              <div class="basket"></div>
+              <div class="product"></div>
+              <div class="search-results"></div>
+            </code></pre>
+          </aticle>
+
+          <p class="fragment">Non semantic classes don’t tell you what the HTML represents.</p>
+          <p class="fragment">Semantic classes have a much clearer meaning. <br>They don’t tell you what they look like. That’s what CSS is for. </p>
+        </section>
+
+        <section>
+            <h4>reasons to use semantic class names</h4>
+          <ul>
+            <li class="fragment">Intention is clear</li>
+            <li class="fragment">It’s easier to build responsive sites</li>
+            <li class="fragment">More confident with making changes</li>
+            <li class="fragment">They reduce the risk of regression</li>
+            <li class="fragment">Easier to debug</li>
+            <li class="fragment">They provide hooks for automated tests</li>
+          </ul>
+        </section>
+        
+        <section>
+          
+          <h3>BEM architecture</h3>
+          <p class="fragment">
+            Stands for "Block Element Modifier". <br> It relies on the fact that every web page or web app can be exploded into blocks, elements and modifiers.
+          </p>
+          <pre class="narrow fragment"><code data-trim >
+            .block {}
+            .block--modifier {}
+            .block__element {}
+            .block__element--modifier {
+          </code></pre>
+        </section>
+         <section>
+          <img width="641" height="641" data-src="lib/img/bem.jpg" alt="bem axplained">
+         
+        </section>
+        <section>
+          <article>
+          <small>Adam navigation - current code:</small>
+            <pre><code data-trim >
+              <header>
+                <h1 class="logo" style="background:url(&quot;images/meetrics_logo.png&quot;) no-repeat">Meetrics GmbH</h1>
+                <div class="navigation">
+                  <div>
+                    <div class="menuTab">
+                      <ul class="nav nav-tabs">
+                        <li class="menuDashboard">
+                          <a class="dashboard hand"><span></span></a>
+                        </li>
+                        <li class="menuRadar active">
+                          <a class="radar hand"><span></span></a>
+                        </li>
+                        <li class="menuReport">
+                          <a class="detail hand"><span></span></a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="metaMenu">
+                      <div>
+                        <div class="header-icons">
+                          <a><span class="ico ico22 enter"></span></a>
+                          <a><span class="ico ico22 user"></span></a>
+                          <a><span class="ico ico22 settings"></span></a>
+                          <a><span class="ico ico22 help"></span></a>
+                          <a><span class="menuClose ico ico22 logout"></span></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="userbox">
+                  <div>
+                    <p>
+                      <span class="role">ADMIN</span>
+                      <span>Batman</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="campaignSpace">
+                ...
+                </div>
+              </header>
+                </code></pre>
+          </article>
+          <small class="fragment c-approval">Solution:</small>
+        </section>
+
+        <section>
+          <article>
+            <small>Adam navigation - possible solution</small>
+
+            <pre><code data-trim >
+              <header class="header">
+
+                <a href="/" title="Return to the homepage" class="header__logo">
+                  <img src="/images/meetrics_logo.png" alt="Meetrics logo" />
+                </a>
+
+                <nav class="header__nav-apps">
+                  <a class="header__nav-apps__link link--dashboard"><i></i><span>Dashboard</span></a>
+                  <a class="header__nav-apps__link link--radar"><i></i><span>Radar</span></a>
+                  <a class="header__nav-apps__link link--detail"><i></i><span>Detail</span></a>
+                </nav>
+                
+                <div class="header__userbox">
+                  <span class="header__userbox__role">ADMIN</span>
+                  <span class="header__userbox__name">Batman</span>
+                </div>
+
+                <nav class="header__nav-user">
+                  <a class="header__nav-user__link link--enter ico ico22"></a>
+                  <a class="header__nav-user__link link--user ico ico22"></a>
+                  <a class="header__nav-user__link link--settings ico ico22"></a>
+                  <a class="header__nav-user__link link--help ico ico22"></a>
+                  <a class="header__nav-user__link link--logout ico ico22"></a>
+                </nav>
+              </header>
+              <section class="project-opions">
+              ...
+              </section>
+            </code></pre>
+          </article>
+
+          <article class="fragment fade-up">
+            <pre><code data-trim >
+              .header__nav-apps {...}
+              .header__nav-apps__link {...}
+              .header__nav-user {...}
+              .header__nav-user__link {
+                ...
+                &.link--enter {...}
+                &.link--user {...}
+                &.link--settings {...}
+              }
+            </code></pre>
+          </article>
+        </section>
+      </section>
+      <!-- Slide 3 End-->
+
+      <!-- Slide 4 Start -->
+      <section>
+
+         <section>
+          <h2>Make CSS modular and scalable</h2>
+          <article class="fragment">
+            <code>
+            style.css: 2472 LOC <br>
+            custom.css: 2267 LOC
+            </code>
+          </article>
+        </section>
+
+        <section>
+          <h3>Modular architecture</h3>
+            
+          
+            <p>Separate CSS files</p>
+              <pre class="m-color-invert">
+stylesheets/
+|
+|-- modules/              # Common modules
+|   |-- _all.less         # Include to get all modules
+|   |-- _utility.less     # Module name
+|   |-- _colors.less      # Etc...
+|   ...
+|
+|-- partials/             # Partials
+|   |-- _base.sass        # imports for all mixins and variables
+|   |-- _buttons.less     # buttons
+|   |-- _figures.less     # figures
+|   |-- _grids.less       # grids
+|   |-- _typography.less  # typography
+|   |-- _reset.less       # reset
+|   ...
+|
+|-- vendor/               # CSS or Sass from other projects
+|   |-- _colorpicker.less
+|   |-- _jquery.ui.core.less
+|   ...
+|
+`-- main.less            # primary Sass file
+
+              </pre>
+        </section>
+        <section>
+          <p>Predefine common values <br><small>( colors, font, padding, z-index, ...) </small></p>
+             
+            <pre><code class="m--full-width" data-trim >
+// _vars.less
+
+// Font weights
+$light: 100;
+$regular: 400;
+$bold: 600;
+
+// Background
+$backgroundColor: #2b2b2b;
+
+// Primary/body text
+$mainFont: 'Lato', sans-serif;
+$mainFontSize: 40px;
+$mainColor: #eee;
+
+// Vertical spacing between blocks of text
+$blockMargin: 20px;
+
+$heading1Size: 3.77em;
+$heading2Size: 2.11em;
+$heading3Size: 1.55em;
+$heading4Size: 1.00em;
+
+// Links and actions
+$linkColor: #13DAEC;
+$linkColorHover: lighten( $linkColor, 20% );
+
+
+
+            </li>
+            </ul>
+            </code></pre>
+          </section>
+        <section>
+            <pre><code data-trim >
+// _typography.less
+
+// Headings
+.adam h1,
+.adam h2,
+.adam h3,
+.adam h4,
+.adam h5,
+.adam h6 {
+  margin: $headingMargin;
+  color: $headingColor;
+
+  font-family: $headingFont;
+  font-weight: $headingFontWeight;
+  line-height: $headingLineHeight;
+  letter-spacing: $headingLetterSpacing;
+
+  text-transform: $headingTextTransform;
+  text-shadow: $headingTextShadow;
+
+  word-wrap: break-word;
+}
+
+.adam h1 {font-size: $heading1Size; }
+.adam h2 {font-size: $heading2Size; }
+.adam h3 {font-size: $heading3Size; }
+.adam h4 {font-size: $heading4Size; }
+
+.adam h1 {
+  text-shadow: $heading1TextShadow;
+}
+
+            </code></pre>
+
+            
+            
+          </ul>
+        </section>
+
+        <section>
+          <ul>
+            <li>Every template gets its own stylesheet</li>
+            <li class="fragment">Use customizable LESS version of <a href="http://getbootstrap.com/customize/" target="blank">bootstrap</a> <br><small>(Decreases overwriting)</small></li>
+            <li class="fragment">
+              <p>DRY: Use mixins, extends and variables</p>
+              <pre class="narrow"><code>
+// pre-written style
+.bordered {
+  border-top: dotted 1px black;
+  border-bottom: solid 2px black;
+}
+
+.nav__link {
+  display: inline-block;
+  width: 100px;
+  .bordered;
+}
+              </code></pre>
+              <pre class="narrow"><code>
+@nice-blue: #5B83AD;
+@light-blue: @nice-blue + #111;
+
+.header {
+  color: @light-blue;
+}
+              </code></pre>
+            </li>
+          </ul>
+        <p>
+        </p>
+        </section>
+      </section>
+
+      <section>
+        <h3>TL;DR</h3>
+        <ul>
+          <li>
+           Improve build process
+          </li>
+          <li>
+            Improve semantics
+          </li>
+           <li>
+            Implement modular approach
+          </li>
+          <li>
+            Use best practices
+          </li>
+        </ul>
+      </section>
+
+      <section>
+      <h3>Thank you</h3>
+      </section>
+
+
+
+    </div>
+  </div>
+  <script src="lib/js/head.min.js"></script>
+  <script src="js/reveal.js"></script>
+  <script>
+  // More info https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    history: true,
+
+    // More info https://github.com/hakimel/reveal.js#dependencies
+    dependencies: [{
+      src: 'plugin/markdown/marked.js'
+    }, {
+      src: 'plugin/markdown/markdown.js'
+    }, {
+      src: 'plugin/notes/notes.js',
+      async: true
+    }, {
+      src: 'plugin/highlight/highlight.js',
+      async: true,
+      callback: function() {
+        hljs.initHighlightingOnLoad();
+      }
+    }]
+  });
+  </script>
+</body>
+
+</html>
